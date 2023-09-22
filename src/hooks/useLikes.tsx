@@ -1,48 +1,65 @@
-import { useEffect, useState } from "react";
-import { api } from "../api/likesApi";
+import { useEffect, useState } from "react"
+import { LikeData, MOCK_LIKE_DATA, api } from "../api/likesApi"
 
-export const useLikes = () => {
-    const [{ isLiked, likesCount }, setLikeData] = useState({ likesCount: 100, isLiked: false });
+export const useLikes = (id: string) => {
+    const [likeData, setLikeData] = useState<LikeData>(MOCK_LIKE_DATA)
     const [loading, setLoading] = useState(false)
-    const [error, setError] = useState('')
-
+    const [error, setError] = useState<unknown>()
+  
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setLoading(true)
-                const data = await api.getLikesCount()
-                setLikeData(data)
-            } catch (e: any) {
-                setError(e)
-            } finally {
-                setLoading(false)
-            }
+      const getLikes_ = async () => {
+        try {
+          setLoading(true)
+          const likes = await api.getLikes()
+          setLikeData(likes)
+        } catch (e) {
+          setError(e)
+        } finally {
+          setLoading(false)
         }
-
-        fetchData()
-
+      }
+  
+      getLikes_()
     }, [])
-
-    const like = async () => {
-        await api.like(!isLiked)
+  
+    const update = async (value: boolean) => {
+      const delta = value ? 1 : -1
+  
+      try {
+        setLikeData((prev) => {
+          const prevLike = prev[id]
+          return {
+            ...prev,
+            [id]: prevLike
+              ? { count: prevLike.count + delta, liked_by_me: value }
+              : { count: 1, liked_by_me: value },
+          }
+        })
+        await api.like(id)
+      } catch (e) {
+        setLikeData((prev) => {
+          const prevLike = prev[id]
+          return {
+            ...prev,
+            [id]: { count: prevLike.count - delta, liked_by_me: !value },
+          }
+        })
+      }
     }
-
-    const handleLike = (e: any) => {
-        e.preventDefault()
-        like()
-        if (isLiked) {
-            setLikeData(prev => ({ ...prev, likesCount: prev.likesCount-- }))
-        } else {
-            setLikeData(prev => ({ ...prev, likesCount: prev.likesCount++ }))
-        }
-        setLikeData(prev => ({ ...prev, isLiked: !prev.isLiked }));
+  
+    const like_ = () => {
+      return update(true)
     }
-
+  
+    const unlike_ = () => {
+      return update(false)
+    }
+  
     return {
-        isLiked,
-        likesCount,
-        loading,
-        handleLike,
-        error
+      data: likeData[id],
+      like: like_,
+      unlike: unlike_,
+      loading,
+      error,
     }
-}
+  }

@@ -1,31 +1,14 @@
-import { useState } from "react";
 import './LikeButtonStyles.css'
 import { useLikes } from "../../hooks/useLikes";
 
-// interface ILikeButton {
-//     isLiked: boolean
-//     likeCount: number
-// }
-
 const LikeButton = () => {
-    const { likesCount, isLiked, handleLike } = useLikes()
-    // const [liked, setLiked] = useState(false);
-    // const [likeCount, setLikeCount] = useState(100);
-
-    // const toggleLike = () => {
-    //     if (liked) {
-    //         setLikeCount(prev => prev - 1);
-    //     } else {
-    //         setLikeCount(prev => prev + 1);
-    //     }
-    //     setLiked(!liked);
-    // };
+    const { data: { liked_by_me, count }, like, unlike } = useLikes('1')
 
     return <button
-        className={`${isLiked ? 'liked' : ''} like-button`}
-        onClick={handleLike}
+        className={`${liked_by_me ? 'liked' : ''} like-button`}
+        onClick={liked_by_me ? unlike : like}
     >
-        Like | <span className="likes-counter">{likesCount}</span>
+        Like | <span className="likes-counter">{count}</span>
     </button>
 }
 
