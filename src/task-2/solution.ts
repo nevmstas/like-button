@@ -1,11 +1,26 @@
+const findBlocks = (str: string) => {
+  let blocks = []
+  let currentBlock = ''
+  for (let i = 0; i <= str.length; i++) {
+    if (!currentBlock) {
+      currentBlock += str[i]
+      continue
+    }
+    console.log({currentBlock, char: str[i], if: currentBlock.endsWith(str[i])})
+    if (currentBlock.endsWith(str[i])) {
+      currentBlock += str[i]
+    } else {
+      blocks.push(currentBlock)
+      currentBlock = str[i]
+    }
+  }
+
+  console.log(blocks)
+}
+
 class Solution {
   public solution(str: string): number {
     return 0
   }
 }
 
-const solution = new Solution();
-console.log(solution.solution("aabacbba"));     // Output: 6
-console.log(solution.solution("aabxbaba"));     // Output: 6
-console.log(solution.solution("xxxyxxyyyxyyy"));// Output: 11
-console.log(solution.solution("atheaxbtheb"));  // Output: 5
